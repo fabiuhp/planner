@@ -3,13 +3,12 @@ package br.com.fabiopereira.planner.trip;
 import br.com.fabiopereira.planner.participant.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/trips")
@@ -21,10 +20,18 @@ public class TripController {
     private TripRepository tripRepository;
 
     @PostMapping
-    public ResponseEntity<String> createTrip(@RequestBody TripRequest tripRequest) {
+    public ResponseEntity<TripResponse> createTrip(@RequestBody TripRequest tripRequest) {
         var trip = Trip.fromRecord(tripRequest);
         tripRepository.save(trip);
         participantService.registerParticipantsToEvent(tripRequest.emailsToInvite(), trip.getId());
-        return ResponseEntity.ok("Sucesso");
+        return ResponseEntity.ok(new TripResponse(trip.getId()));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Trip> getTripDetails(@PathVariable UUID id) {
+        Optional<Trip> trip = tripRepository.findById(id);
+
+        return trip.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
