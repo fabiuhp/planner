@@ -23,15 +23,39 @@ public class TripController {
     public ResponseEntity<TripResponse> createTrip(@RequestBody TripRequest tripRequest) {
         var trip = Trip.fromRecord(tripRequest);
         tripRepository.save(trip);
-        participantService.registerParticipantsToEvent(tripRequest.emailsToInvite(), trip.getId());
+        participantService.registerParticipantsToEvent(tripRequest.emailsToInvite(), trip);
         return ResponseEntity.ok(new TripResponse(trip.getId()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Trip> getTripDetails(@PathVariable UUID id) {
-        Optional<Trip> trip = tripRepository.findById(id);
+        return tripRepository.findById(id).map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 
-        return trip.map(ResponseEntity::ok)
+    @PutMapping("/{id}")
+    public ResponseEntity<Trip> updateTrip(@PathVariable UUID id, @RequestBody TripRequest tripRequest) {
+        return tripRepository.findById(id)
+                .map(trip -> {
+                    trip.setStartsAt(LocalDateTime.parse(tripRequest.startsAt(), DateTimeFormatter.ISO_DATE_TIME));
+                    trip.setEndsAt(LocalDateTime.parse(tripRequest.endsAt(), DateTimeFormatter.ISO_DATE_TIME));
+                    trip.setDestination(tripRequest.destionation());
+                    tripRepository.save(trip);
+                    participantService.triggerConfirmedEmailToParticipants(id);
+
+                    return ResponseEntity.ok(trip);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/confirm")
+    public ResponseEntity<Trip> confirmTrip(@PathVariable UUID id) {
+        return tripRepository.findById(id)
+                .map(trip -> {
+                    trip.setConfirmed(true);
+                    tripRepository.save(trip);
+                    return ResponseEntity.ok(trip);
+                })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
