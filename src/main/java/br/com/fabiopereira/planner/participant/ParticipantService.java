@@ -28,10 +28,22 @@ public class ParticipantService {
 
 
     public void triggerConfirmedEmailToParticipants(UUID tripId) {
-
+        //todo: disparar email
     }
 
     public void triggerConfirmedEmailToParticipant(String email) {
+        //todo: disparar email
+    }
 
+    public List<ParticipantData> getAllParticipantsFromEvent(UUID tripId) {
+        return repository.findByTripId(tripId)
+                .stream()
+                .map(participant ->
+                        new ParticipantData(
+                                participant.getId(),
+                                participant.getName(),
+                                participant.getEmail(),
+                                participant.getIsConfirmed())
+                ).toList();
     }
 }

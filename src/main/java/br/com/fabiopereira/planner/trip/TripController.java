@@ -1,6 +1,7 @@
 package br.com.fabiopereira.planner.trip;
 
 import br.com.fabiopereira.planner.participant.ParticipantCreateResponse;
+import br.com.fabiopereira.planner.participant.ParticipantData;
 import br.com.fabiopereira.planner.participant.ParticipantRequest;
 import br.com.fabiopereira.planner.participant.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,5 +74,12 @@ public class TripController {
                     return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/participants")
+    public ResponseEntity<List<ParticipantData>> getAllParticipants(@PathVariable UUID id){
+        List<ParticipantData> participantList = participantService.getAllParticipantsFromEvent(id);
+
+        return ResponseEntity.ok(participantList);
     }
 }
