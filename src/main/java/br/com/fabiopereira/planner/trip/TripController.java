@@ -1,5 +1,7 @@
 package br.com.fabiopereira.planner.trip;
 
+import br.com.fabiopereira.planner.participant.ParticipantCreateResponse;
+import br.com.fabiopereira.planner.participant.ParticipantRequest;
 import br.com.fabiopereira.planner.participant.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,6 +59,18 @@ public class TripController {
                     trip.setConfirmed(true);
                     tripRepository.save(trip);
                     return ResponseEntity.ok(trip);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/invite")
+    public ResponseEntity<ParticipantCreateResponse> inviteParticipant(@PathVariable UUID id, @RequestBody ParticipantRequest participantRequest) {
+        return tripRepository.findById(id)
+                .map(trip -> {
+                    var response = participantService.registerParticipantToEvent(participantRequest.email(), trip);
+                    if(trip.isConfirmed()) participantService.triggerConfirmedEmailToParticipant(participantRequest.email());
+
+                    return ResponseEntity.ok(response);
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

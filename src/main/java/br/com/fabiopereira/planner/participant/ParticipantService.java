@@ -14,13 +14,24 @@ public class ParticipantService {
 
     public void registerParticipantsToEvent(List<String> participantsToInvite, Trip trip){
         List<Participant> participants = participantsToInvite.stream().map(email -> new Participant(email, trip)).toList();
-        this.repository.saveAll(participants);
+        repository.saveAll(participants);
 
         System.out.println(participants.get(0).getId());
     }
 
+    public ParticipantCreateResponse registerParticipantToEvent(String email, Trip trip){
+        var newParticipant = new Participant(email, trip);
+        repository.save(newParticipant);
+
+        return new ParticipantCreateResponse(newParticipant.getId());
+    }
+
 
     public void triggerConfirmedEmailToParticipants(UUID tripId) {
+
+    }
+
+    public void triggerConfirmedEmailToParticipant(String email) {
 
     }
 }
