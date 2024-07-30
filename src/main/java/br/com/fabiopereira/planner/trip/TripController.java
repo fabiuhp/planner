@@ -1,5 +1,8 @@
 package br.com.fabiopereira.planner.trip;
 
+import br.com.fabiopereira.planner.activities.ActivityRequest;
+import br.com.fabiopereira.planner.activities.ActivityResponse;
+import br.com.fabiopereira.planner.activities.ActivityService;
 import br.com.fabiopereira.planner.participant.ParticipantCreateResponse;
 import br.com.fabiopereira.planner.participant.ParticipantData;
 import br.com.fabiopereira.planner.participant.ParticipantRequest;
@@ -19,6 +22,8 @@ public class TripController {
 
     @Autowired
     private ParticipantService participantService;
+    @Autowired
+    private ActivityService activityService;
     @Autowired
     private TripRepository tripRepository;
 
@@ -79,5 +84,16 @@ public class TripController {
         List<ParticipantData> participantList = participantService.getAllParticipantsFromEvent(id);
 
         return ResponseEntity.ok(participantList);
+    }
+
+    @PostMapping("/{id}/activities")
+    public ResponseEntity<ActivityResponse> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequest activityRequest) {
+        return tripRepository.findById(id)
+                .map(trip -> {
+                    var response = activityService.save(activityRequest, trip);
+
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
