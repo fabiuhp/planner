@@ -1,5 +1,6 @@
 package br.com.fabiopereira.planner.trip;
 
+import br.com.fabiopereira.planner.activities.ActivityData;
 import br.com.fabiopereira.planner.activities.ActivityRequest;
 import br.com.fabiopereira.planner.activities.ActivityResponse;
 import br.com.fabiopereira.planner.activities.ActivityService;
@@ -86,6 +87,13 @@ public class TripController {
         return ResponseEntity.ok(participantList);
     }
 
+    @GetMapping("/{id}/activities")
+    public ResponseEntity<List<ActivityData>> getAllActivities(@PathVariable UUID id){
+        List<ActivityData> activityList = activityService.getAllActivitiesFromId(id);
+
+        return ResponseEntity.ok(activityList);
+    }
+
     @PostMapping("/{id}/activities")
     public ResponseEntity<ActivityResponse> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequest activityRequest) {
         return tripRepository.findById(id)
@@ -96,4 +104,6 @@ public class TripController {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+
 }
