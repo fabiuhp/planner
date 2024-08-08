@@ -1,4 +1,4 @@
-package br.com.fabiopereira.planner.activities;
+package br.com.fabiopereira.planner.activity;
 
 public record ActivityRequest(String title, String occursAt) {
 }

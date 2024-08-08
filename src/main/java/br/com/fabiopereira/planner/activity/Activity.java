@@ -1,4 +1,4 @@
-package br.com.fabiopereira.planner.activities;
+package br.com.fabiopereira.planner.activity;
 
 import br.com.fabiopereira.planner.trip.Trip;
 import jakarta.persistence.*;

@@ -1,9 +1,13 @@
 package br.com.fabiopereira.planner.trip;
 
-import br.com.fabiopereira.planner.activities.ActivityData;
-import br.com.fabiopereira.planner.activities.ActivityRequest;
-import br.com.fabiopereira.planner.activities.ActivityResponse;
-import br.com.fabiopereira.planner.activities.ActivityService;
+import br.com.fabiopereira.planner.activity.ActivityData;
+import br.com.fabiopereira.planner.activity.ActivityRequest;
+import br.com.fabiopereira.planner.activity.ActivityResponse;
+import br.com.fabiopereira.planner.activity.ActivityService;
+import br.com.fabiopereira.planner.link.LinkData;
+import br.com.fabiopereira.planner.link.LinkRequest;
+import br.com.fabiopereira.planner.link.LinkResponse;
+import br.com.fabiopereira.planner.link.LinkService;
 import br.com.fabiopereira.planner.participant.ParticipantCreateResponse;
 import br.com.fabiopereira.planner.participant.ParticipantData;
 import br.com.fabiopereira.planner.participant.ParticipantRequest;
@@ -25,6 +29,8 @@ public class TripController {
     private ParticipantService participantService;
     @Autowired
     private ActivityService activityService;
+    @Autowired
+    private LinkService linkService;
     @Autowired
     private TripRepository tripRepository;
 
@@ -105,5 +111,21 @@ public class TripController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/{id}/links")
+    public ResponseEntity<LinkResponse> registerLink(@PathVariable UUID id, @RequestBody LinkRequest linkRequest) {
+        return tripRepository.findById(id)
+                .map(trip -> {
+                    var response = linkService.save(linkRequest, trip);
 
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/links")
+    public ResponseEntity<List<LinkData>> getAllLinks(@PathVariable UUID id){
+        List<LinkData> linkList = linkService.getAllLinkFromId(id);
+
+        return ResponseEntity.ok(linkList);
+    }
 }
